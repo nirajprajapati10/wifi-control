@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WiFi Light Control</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1f4037, #99f2c8);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .button-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        button {
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(135deg, #ff7eb3, #ff758c);
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .connection-input {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        footer a {
+            color: #ff7eb3;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>WiFi Light Control</h1>
+    <div class="connection-input">
+        <input type="text" id="esp32-ip" placeholder="Enter ESP32 IP Address" />
+        <button onclick="saveIP()">Connect</button>
+    </div>
+    <div class="button-container">
+        <button onclick="controlLight(1, 'ON')">Light 1 ON</button>
+        <button onclick="controlLight(1, 'OFF')">Light 1 OFF</button>
+        <button onclick="controlLight(2, 'ON')">Light 2 ON</button>
+        <button onclick="controlLight(2, 'OFF')">Light 2 OFF</button>
+        <button onclick="controlLight(3, 'ON')">Light 3 ON</button>
+        <button onclick="controlLight(3, 'OFF')">Light 3 OFF</button>
+    </div>
+    <footer>
+        Powered by <a href="https://esp32.net/" target="_blank">ESP32</a>
+    </footer>
+
+    <script>
+        let esp32IP = '';
+
+        function saveIP() {
+            const input = document.getElementById('esp32-ip').value;
+            if (input) {
+                esp32IP = input;
+                alert(`ESP32 IP set to: ${esp32IP}`);
+            } else {
+                alert('Please enter a valid IP address.');
+            }
+        }
+
+        function controlLight(lightNumber, action) {
+            if (!esp32IP) {
+                alert('Please set the ESP32 IP address first.');
+                return;
+            }
+
+            fetch(`http://${esp32IP}/control?light=${lightNumber}&action=${action}`)
+                .then(response => {
+                    if (response.ok) {
+                        return response.text();
+                    } else {
+                        throw new Error('Failed to control light');
+                    }
+                })
+                .then(data => alert(data))
+                .catch(error => alert('Error: ' + error));
+        }
+    </script>
+</body>
+</html>
